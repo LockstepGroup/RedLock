@@ -1,4 +1,4 @@
-function Connect-RedLock {
+function Update-RedLockToken {
     [CmdletBinding()]
 
     Param (
@@ -41,8 +41,7 @@ function Connect-RedLock {
 
     END {
         try {
-            $Connect = Invoke-RestMethod @RestParams
-            $Global:RedlockToken = $Connect.token
+            Invoke-RestMethod @RestParams
         } catch {
             switch (($_.ErrorDetails.Message | ConvertFrom-Json).message) {
                 'invalid_credentials' {
