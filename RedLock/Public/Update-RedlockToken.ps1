@@ -5,7 +5,15 @@ function Update-RedLockToken {
     )
 
     BEGIN {
-        $VerbosePrefix = "Connect-RedLock:"
+        $VerbosePrefix = "Update-RedLockToken:"
+
+        if ($null -eq $Global:RedLockToken) {
+            try {
+                throw
+            } catch {
+                $PSCmdlet.ThrowTerminatingError([HelperProcessError]::throwCustomError(1002, ""))
+            }
+        }
         # should always be the same
         $BaseRedLockUri = 'https://api2.redlock.io/'
 
@@ -15,7 +23,7 @@ function Update-RedLockToken {
             Method      = 'Get'
             ContentType = 'application/json'
             Headers     = @{
-                'x-redlock-auth' = $Global:RedlockToken
+                'x-redlock-auth' = $Global:RedLockToken
             }
         }
     }
@@ -26,11 +34,11 @@ function Update-RedLockToken {
     END {
         try {
             $Connect = Invoke-RestMethod @RestParams
-            $Global:RedlockToken = $Connect.token
+            $Global:RedLockToken = $Connect.token
         } catch {
-            switch (($_.ErrorDetails.Message | ConvertFrom-Json).message) {
-                'invalid_credentials' {
-                    $PSCmdlet.ThrowTerminatingError([HelperProcessError]::throwCustomError(1000, $Credential))
+            switch -Regex ($_.Exception.Message) {
+                '401\ \(Unauthorized\)' {
+                    $PSCmdlet.ThrowTerminatingError([HelperProcessError]::throwCustomError(1001, $Global:RedLockToken))
                 }
                 default {
                     $PSCmdlet.ThrowTerminatingError($PSItem)

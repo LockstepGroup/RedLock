@@ -42,10 +42,10 @@ function Connect-RedLock {
     END {
         try {
             $Connect = Invoke-RestMethod @RestParams
-            $Global:RedlockToken = $Connect.token
+            $Global:RedLockToken = $Connect.token
         } catch {
-            switch (($_.ErrorDetails.Message | ConvertFrom-Json).message) {
-                'invalid_credentials' {
+            switch -Regex ($_.Exception.Message) {
+                '401\ \(Unauthorized\)' {
                     $PSCmdlet.ThrowTerminatingError([HelperProcessError]::throwCustomError(1000, $Credential))
                 }
                 default {

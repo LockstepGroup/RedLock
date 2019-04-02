@@ -20,6 +20,8 @@ class HelperProcessError {
     # The Types and Categories here are generic because I have no idea what subset exist in both core and non-core.
     static [hashtable] $ExceptionDefinitions = @{
         1000 = [HelperProcessError]::newExceptionDefinition('System.ArgumentException', [System.Management.Automation.ErrorCategory]::CloseError, 'Invalid credentials, please provide valid Redlock credentials.')
+        1001 = [HelperProcessError]::newExceptionDefinition('System.ArgumentException', [System.Management.Automation.ErrorCategory]::CloseError, 'Token has expired, get a new one with Connect-RedLock.')
+        1002 = [HelperProcessError]::newExceptionDefinition('System.ArgumentException', [System.Management.Automation.ErrorCategory]::CloseError, 'No Token present, get one with Connect-RedLock.')
     }
 
     # Constructor
