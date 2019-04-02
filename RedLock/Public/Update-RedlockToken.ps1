@@ -2,13 +2,6 @@ function Update-RedLockToken {
     [CmdletBinding()]
 
     Param (
-        [Parameter(Mandatory = $True, Position = 0)]
-        [System.Management.Automation.PSCredential]
-        [System.Management.Automation.Credential()]
-        $Credential,
-
-        [Parameter(Mandatory = $False, Position = 1)]
-        [string]$CustomerName
     )
 
     BEGIN {
@@ -18,22 +11,13 @@ function Update-RedLockToken {
 
         # setup base rest parameters
         $RestParams = @{
-            Uri         = ($BaseRedLockUri + 'login')
-            Method      = 'Post'
-            Body        = @{
-                username = $Credential.UserName
-                password = $Credential.GetNetworkCredential().Password
-            }
+            Uri         = ($BaseRedLockUri + 'auth_token/extend')
+            Method      = 'Get'
             ContentType = 'application/json'
+            Headers     = @{
+                'x-redlock-auth' = $Global:RedlockToken
+            }
         }
-
-        # add customername if specified
-        if ($CustomerName) {
-            $RestParams.Body.customerName = $CustomerName
-        }
-
-        # convert body to json string
-        $RestParams.Body = $RestParams.Body | ConvertTo-Json
     }
 
     PROCESS {
@@ -41,7 +25,8 @@ function Update-RedLockToken {
 
     END {
         try {
-            Invoke-RestMethod @RestParams
+            $Connect = Invoke-RestMethod @RestParams
+            $Global:RedlockToken = $Connect.token
         } catch {
             switch (($_.ErrorDetails.Message | ConvertFrom-Json).message) {
                 'invalid_credentials' {
